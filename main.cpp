@@ -3,11 +3,25 @@
 #include "vec3.h"
 #include "ray.h"
 
+bool HitSphere(const Point3& center, double radius, const Ray& r)
+{
+    Vec3 oc = center - r.Origin();
+    auto a = Dot(r.Direction(), r.Direction());
+    auto b = -2.0 * Dot(r.Direction(), oc);
+    auto c = Dot(oc, oc) - radius * radius;
+    auto discriminant = b * b - 4 * a * c;
+    return (discriminant >= 0);
+}
+
 /**
  * 광선의 색을 계산하는 함수, 일단 간단하게 방향에 따라 그라데이션을 적용한다.
  */
 Color RayColor(const Ray& r)
 {
+    // 구에 적중하면 빨간색을 반환한다.
+    if (HitSphere(Point3(0,0,-1), 0.5, r))
+        return Color(1, 0, 0);
+
     Vec3 unitDirection = UnitVector(r.Direction());
 	auto a = 0.5 * (unitDirection.Y() + 1.0);
 
