@@ -4,7 +4,7 @@
 
 using Color = Vec3;
 
-// vec3클래스를 사용하여 단일 색상을 작성하는 함수
+// vec3클래스를 사용하여 단일 색상을 기록하는 함수
 void WriteColor(std::ostream& out, const Color& pixelColor)
 {
     auto r = pixelColor.X();

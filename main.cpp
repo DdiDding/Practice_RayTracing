@@ -1,6 +1,15 @@
 #include <iostream>
 #include "color.h"
 #include "vec3.h"
+#include "ray.h"
+
+Color RayColor(const Ray& r)
+{
+    Vec3 unitDirection = UnitVector(r.Direction());
+	auto a = 0.5 * (unitDirection.Y() + 1.0);
+
+	return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color	(0.5, 0.7, 1.0);
+}
 
 int main()
 {
@@ -47,10 +56,14 @@ int main()
     for (int j = 0; j < imageHeight; j++)
     {
         std::clog << "\rScanlines remaining: " << (imageHeight - j) << ' ' << std::flush;
-        for (int i = 0; i < imageWidth; i++)
+        for (int i = 0; i < imageWidth; i++) 
         {
-            auto PixelColor = Color(double(i) / (imageWidth - 1), double(j) / (imageHeight - 1), 0);
-            WriteColor(std::cout, PixelColor);
+            auto pixelCenter = pixel00Loc + (i * pixelDeltaU) + (j * pixelDeltaV);
+            auto rayDirection = pixelCenter - cameraCenter;
+            Ray r(cameraCenter, rayDirection);
+
+            Color pixelColor = RayColor(r);
+            WriteColor(std::cout, pixelColor);
         }
     }
 
