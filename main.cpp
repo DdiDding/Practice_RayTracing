@@ -25,5 +25,6 @@ int main()
         }
     }
     
+    std::clog << "\rDone.                  \n;";
     return 0;
 }
