@@ -3,6 +3,9 @@
 #include "vec3.h"
 #include "ray.h"
 
+/**
+ * 광선의 색을 계산하는 함수, 일단 간단하게 방향에 따라 그라데이션을 적용한다.
+ */
 Color RayColor(const Ray& r)
 {
     Vec3 unitDirection = UnitVector(r.Direction());
