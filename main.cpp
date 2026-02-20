@@ -3,8 +3,10 @@
 #include "vec3.h"
 #include "ray.h"
 
-// 판별식만 확인한다.
-bool HitSphere(const Point3& center, double radius, const Ray& r)
+/**
+ * 충돌 지점을 반환한다, 충돌하지 않으면 -1을 반환
+ */
+double HitSphere(const Point3& center, double radius, const Ray& r)
 {
     // 광선 시작 지점과 구의 중앙의 위치 차이 벡터
     Vec3 oc = center - r.Origin();
@@ -15,12 +17,16 @@ bool HitSphere(const Point3& center, double radius, const Ray& r)
     // 광선의 방향이 구를 향해 얼마나 향하는지에 대한 각도의 정규화 값
     auto b = -2.0 * Dot(r.Direction(), oc);
 
-
     auto c = Dot(oc, oc) - radius * radius;
 
     // 2차 방정식 판별식
     auto discriminant = b * b - 4 * a * c;
-    return (discriminant >= 0);
+
+    // 충돌 없음
+    if (discriminant < 0.0) { return -1.0f; }
+
+    // 근의 공식 이용하여 두 해중 작은 t 반환 => 먼저 만나는 지점이 필요하기 때문
+    return (-b - std::sqrt(discriminant)) / (2.0 * a);
 }
 
 /**
