@@ -40,26 +40,18 @@ double HitSphere(const Point3& center, double radius, const Ray& r)
  * 충돌시 충돌한 점의 법선 벡터를 색으로 표현 함
  * 충돌하지 않았다면 광선 방향의 Y에 따라 파란색 -> 하얀색의 그라데이션 색 표현
  */
-Color RayColor(const Ray& ray)
+Color RayColor(const Ray& ray, const Hittable& world)
 {
     HitRecord hitRecord;
 
-    double t = HitSphere(Point3(0.0, 0.0, -1.0), 0.5, ray);
-    
-    // 충돌시
-    if (0.0 < t)
+    if (world.Hit(ray, 0.0, Infinity, hitRecord))
     {
-        Vec3 surfaceNormal = UnitVector(ray.At(t) - Vec3(0.0, 0.0, -1.0));
-        return 0.5 * Color(
-            surfaceNormal.X() + 1.0,
-            surfaceNormal.Y() + 1.0,
-            surfaceNormal.Z() + 1.0
-        );
+        return 0.5 * (hitRecord.Normal + Color(1.0, 1.0, 1.0));
     }
 
-    // 충돌하지 않았을 때 (배경)
-    Vec3 unitDirection = UnitVector(ray.Direction());
-	auto a = 0.5 * (unitDirection.Y() + 1.0);
+    Vector3 unitDirection = UnitVector(ray.Direction());
+    auto a = 0.5 * (unitDirection.Y() + 1.0);
+
 
 	return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color	(0.5, 0.7, 1.0);
 }
@@ -78,6 +70,12 @@ int main()
        0이 되면 이후 0 나누기에 대한 문제에 대한 방지를 위함이다.
      */
     imageHeight = (imageHeight < 1) ? 1 : imageHeight;
+
+    /*************************************************/
+    // world 설정
+    HittableList world;
+    world.Add(std::make_shared<Sphere>(Point3(0.0, 0.0, -1.0), 0.5));
+    world.Add(std::make_shared<Sphere>(Point3(0.0, -100.5, -1.0), 100.0));
 
 
     /*************************************************/
@@ -103,19 +101,26 @@ int main()
     auto viewportUpperLeft = cameraCenter - Vec3(0, 0, focalLength) - viewportU/2 - viewportV/2;
     auto pixel00Loc = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
 
+    /*************************************************/
     // Render
     std::cout << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
 
-    for (int j = 0; j < imageHeight; j++)
+    for (int scanlineIndex = 0; scanlineIndex < imageHeight; scanlineIndex++)
     {
-        std::clog << "\rScanlines remaining: " << (imageHeight - j) << ' ' << std::flush;
-        for (int i = 0; i < imageWidth; i++) 
+            std::clog
+            << "\rScanlines remaining: "
+            << (imageHeight - scanlineIndex)
+            << ' '
+            << std::flush;
+
+        for (int pixelIndex = 0; pixelIndex < imageWidth; pixelIndex++)
         {
-            auto pixelCenter = pixel00Loc + (i * pixelDeltaU) + (j * pixelDeltaV);
+            auto pixelCenter = pixel00Loc + (pixelIndex * pixelDeltaU) + (scanlineIndex * pixelDeltaV);
+
             auto rayDirection = pixelCenter - cameraCenter;
             Ray r(cameraCenter, rayDirection);
 
-            Color pixelColor = RayColor(r);
+            Color pixelColor = RayColor(r, world);
             WriteColor(std::cout, pixelColor);
         }
     }
