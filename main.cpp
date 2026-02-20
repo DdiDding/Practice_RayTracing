@@ -16,20 +16,20 @@ double HitSphere(const Point3& center, double radius, const Ray& r)
 
     // ray 방향 벡터와 중심 방향 벡터의 내적
     // → 구 중심 방향으로 얼마나 향하는지 나타내는 값
-    auto b = -2.0 * Dot(r.Direction(), oc);
+    auto b = Dot(r.Direction(), oc);
 
     // 레이 시작점이 구 중심에서 얼마나 떨어져 있는지를 나타내는 값
     // (구 내부/외부 판별 가능)
-    auto c = Dot(oc, oc) - radius * radius;
+    auto c = oc.LengthSquared() - radius * radius;
 
     // 2차 방정식 판별식
-    auto discriminant = b * b - 4 * a * c;
+    auto discriminant = (b * b) - (a * c);
 
     // 충돌 없음
     if (discriminant < 0.0) { return -1.0f; }
 
     // 근의 공식 이용하여 두 해중 작은 t 반환 => 먼저 만나는 지점이 필요하기 때문
-    return (-b - std::sqrt(discriminant)) / (2.0 * a);
+    return (b - std::sqrt(discriminant)) / a;
 }
 
 /**
