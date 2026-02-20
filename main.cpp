@@ -1,7 +1,10 @@
 #include <iostream>
-#include "color.h"
-#include "vec3.h"
-#include "ray.h"
+
+#include "hittable.h"
+#include "hittable_list.h"
+#include "rtweekend.h"
+#include "sphere.h"
+
 
 /**
  * 충돌 지점을 반환한다, 충돌하지 않으면 -1을 반환
@@ -39,6 +42,8 @@ double HitSphere(const Point3& center, double radius, const Ray& r)
  */
 Color RayColor(const Ray& ray)
 {
+    HitRecord hitRecord;
+
     double t = HitSphere(Point3(0.0, 0.0, -1.0), 0.5, ray);
     
     // 충돌시
