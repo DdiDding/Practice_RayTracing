@@ -1,39 +1,57 @@
 #include <iostream>
-#include "color.h"
-#include "vec3.h"
-#include "ray.h"
 
-// 판별식만 확인한다.
-bool HitSphere(const Point3& center, double radius, const Ray& r)
+#include "hittable.h"
+#include "hittable_list.h"
+#include "rtweekend.h"
+#include "sphere.h"
+
+
+/**
+ * 충돌 지점을 반환한다, 충돌하지 않으면 -1을 반환
+ */
+double HitSphere(const Point3& center, double radius, const Ray& r)
 {
     // 광선 시작 지점과 구의 중앙의 위치 차이 벡터
     Vec3 oc = center - r.Origin();
 
-    // 광선의 방향벡터 제곱
+    // 광선의 방향벡터 길이 제곱
     auto a = Dot(r.Direction(), r.Direction());
 
-    // 광선의 방향이 구를 향해 얼마나 향하는지에 대한 각도의 정규화 값
-    auto b = -2.0 * Dot(r.Direction(), oc);
+    // ray 방향 벡터와 중심 방향 벡터의 내적
+    // → 구 중심 방향으로 얼마나 향하는지 나타내는 값
+    auto b = Dot(r.Direction(), oc);
 
-
-    auto c = Dot(oc, oc) - radius * radius;
+    // 레이 시작점이 구 중심에서 얼마나 떨어져 있는지를 나타내는 값
+    // (구 내부/외부 판별 가능)
+    auto c = oc.LengthSquared() - radius * radius;
 
     // 2차 방정식 판별식
-    auto discriminant = b * b - 4 * a * c;
-    return (discriminant >= 0);
+    auto discriminant = (b * b) - (a * c);
+
+    // 충돌 없음
+    if (discriminant < 0.0) { return -1.0f; }
+
+    // 근의 공식 이용하여 두 해중 작은 t 반환 => 먼저 만나는 지점이 필요하기 때문
+    return (b - std::sqrt(discriminant)) / a;
 }
 
 /**
- * 광선의 색을 계산하는 함수, 일단 간단하게 방향에 따라 그라데이션을 적용한다.
+ * 광선의 색을 계산하는 함수
+ * 충돌시 충돌한 점의 법선 벡터를 색으로 표현 함
+ * 충돌하지 않았다면 광선 방향의 Y에 따라 파란색 -> 하얀색의 그라데이션 색 표현
  */
-Color RayColor(const Ray& r)
+Color RayColor(const Ray& ray, const Hittable& world)
 {
-    // 구에 적중하면 빨간색을 반환한다.
-    if (HitSphere(Point3(0,0,-1), 0.5, r))
-        return Color(1, 0, 0);
+    HitRecord hitRecord;
 
-    Vec3 unitDirection = UnitVector(r.Direction());
-	auto a = 0.5 * (unitDirection.Y() + 1.0);
+    if (world.Hit(ray, Interval(0.0, Infinity), hitRecord))
+    {
+        return 0.5 * (hitRecord.Normal + Color(1.0, 1.0, 1.0));
+    }
+
+    Vector3 unitDirection = UnitVector(ray.Direction());
+    auto a = 0.5 * (unitDirection.Y() + 1.0);
+
 
 	return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color	(0.5, 0.7, 1.0);
 }
@@ -52,6 +70,12 @@ int main()
        0이 되면 이후 0 나누기에 대한 문제에 대한 방지를 위함이다.
      */
     imageHeight = (imageHeight < 1) ? 1 : imageHeight;
+
+    /*************************************************/
+    // world 설정
+    HittableList world;
+    world.Add(std::make_shared<Sphere>(Point3(0.0, 0.0, -1.0), 0.5));
+    world.Add(std::make_shared<Sphere>(Point3(0.0, -100.5, -1.0), 100.0));
 
 
     /*************************************************/
@@ -77,19 +101,26 @@ int main()
     auto viewportUpperLeft = cameraCenter - Vec3(0, 0, focalLength) - viewportU/2 - viewportV/2;
     auto pixel00Loc = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
 
+    /*************************************************/
     // Render
     std::cout << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
 
-    for (int j = 0; j < imageHeight; j++)
+    for (int scanlineIndex = 0; scanlineIndex < imageHeight; scanlineIndex++)
     {
-        std::clog << "\rScanlines remaining: " << (imageHeight - j) << ' ' << std::flush;
-        for (int i = 0; i < imageWidth; i++) 
+            std::clog
+            << "\rScanlines remaining: "
+            << (imageHeight - scanlineIndex)
+            << ' '
+            << std::flush;
+
+        for (int pixelIndex = 0; pixelIndex < imageWidth; pixelIndex++)
         {
-            auto pixelCenter = pixel00Loc + (i * pixelDeltaU) + (j * pixelDeltaV);
+            auto pixelCenter = pixel00Loc + (pixelIndex * pixelDeltaU) + (scanlineIndex * pixelDeltaV);
+
             auto rayDirection = pixelCenter - cameraCenter;
             Ray r(cameraCenter, rayDirection);
 
-            Color pixelColor = RayColor(r);
+            Color pixelColor = RayColor(r, world);
             WriteColor(std::cout, pixelColor);
         }
     }
