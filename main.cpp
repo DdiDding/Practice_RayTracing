@@ -11,12 +11,15 @@ double HitSphere(const Point3& center, double radius, const Ray& r)
     // 광선 시작 지점과 구의 중앙의 위치 차이 벡터
     Vec3 oc = center - r.Origin();
 
-    // 광선의 방향벡터 제곱
+    // 광선의 방향벡터 길이 제곱
     auto a = Dot(r.Direction(), r.Direction());
 
-    // 광선의 방향이 구를 향해 얼마나 향하는지에 대한 각도의 정규화 값
+    // ray 방향 벡터와 중심 방향 벡터의 내적
+    // → 구 중심 방향으로 얼마나 향하는지 나타내는 값
     auto b = -2.0 * Dot(r.Direction(), oc);
 
+    // 레이 시작점이 구 중심에서 얼마나 떨어져 있는지를 나타내는 값
+    // (구 내부/외부 판별 가능)
     auto c = Dot(oc, oc) - radius * radius;
 
     // 2차 방정식 판별식
@@ -30,15 +33,27 @@ double HitSphere(const Point3& center, double radius, const Ray& r)
 }
 
 /**
- * 광선의 색을 계산하는 함수, 일단 간단하게 방향에 따라 그라데이션을 적용한다.
+ * 광선의 색을 계산하는 함수
+ * 충돌시 충돌한 점의 법선 벡터를 색으로 표현 함
+ * 충돌하지 않았다면 광선 방향의 Y에 따라 파란색 -> 하얀색의 그라데이션 색 표현
  */
-Color RayColor(const Ray& r)
+Color RayColor(const Ray& ray)
 {
-    // 구에 적중하면 빨간색을 반환한다.
-    if (HitSphere(Point3(0,0,-1), 0.5, r))
-        return Color(1, 0, 0);
+    double t = HitSphere(Point3(0.0, 0.0, -1.0), 0.5, ray);
+    
+    // 충돌시
+    if (0.0 < t)
+    {
+        Vec3 surfaceNormal = UnitVector(ray.At(t) - Vec3(0.0, 0.0, -1.0));
+        return 0.5 * Color(
+            surfaceNormal.X() + 1.0,
+            surfaceNormal.Y() + 1.0,
+            surfaceNormal.Z() + 1.0
+        );
+    }
 
-    Vec3 unitDirection = UnitVector(r.Direction());
+    // 충돌하지 않았을 때 (배경)
+    Vec3 unitDirection = UnitVector(ray.Direction());
 	auto a = 0.5 * (unitDirection.Y() + 1.0);
 
 	return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color	(0.5, 0.7, 1.0);
