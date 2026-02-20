@@ -44,7 +44,7 @@ Color RayColor(const Ray& ray, const Hittable& world)
 {
     HitRecord hitRecord;
 
-    if (world.Hit(ray, 0.0, Infinity, hitRecord))
+    if (world.Hit(ray, Interval(0.0, Infinity), hitRecord))
     {
         return 0.5 * (hitRecord.Normal + Color(1.0, 1.0, 1.0));
     }

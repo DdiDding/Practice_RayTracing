@@ -1,10 +1,9 @@
-#ifndef HITTABLE_LIST_H
-#define HITTABLE_LIST_H
-
-#include "Hittable.h"
-
+#pragma
 #include <memory>
 #include <vector>
+
+#include "Hittable.h"
+#include "rtweekend.h"
 
 class HittableList : public Hittable
 {
@@ -28,18 +27,18 @@ public:
 
     bool Hit(
         const Ray& ray,
-        double rayTMin,
-        double rayTMax,
+        const Interval& rayT,
         HitRecord& hitRecord
     ) const override
     {
         HitRecord temporaryHitRecord;
         bool bHitAnything = false;
-        auto closestSoFar = rayTMax;
+        auto closestSoFar = rayT.Max;
 
         for (const auto& object : mObjects)
         {
-            if (object->Hit(ray, rayTMin, closestSoFar, temporaryHitRecord))
+            Interval currentRayT(rayT.Min, closestSoFar);
+            if (object->Hit(ray, currentRayT, temporaryHitRecord))
             {
                 bHitAnything = true;
                 closestSoFar = temporaryHitRecord.T;
@@ -53,5 +52,3 @@ public:
 private:
     std::vector<std::shared_ptr<Hittable>> mObjects;
 };
-
-#endif
