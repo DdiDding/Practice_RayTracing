@@ -33,6 +33,8 @@ public:
                     pixelColor += RayColor(ray, world);
                 }
 
+                // 평균내는 코드
+                pixelColor *= mPixelSamplesScale;
                 WriteColor(std::cout, pixelColor);
             }
         }
