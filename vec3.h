@@ -3,6 +3,9 @@
 #include <cmath>
 #include <iostream>
 
+using Point3 = Vector3;
+using Vec3 = Vector3;
+
 struct Vector3
 {
     Vector3() : E{ 0,0,0 } {}
@@ -47,16 +50,28 @@ struct Vector3
         return E[0] * E[0] + E[1] * E[1] + E[2] * E[2];
     }
 
+    static Vec3 Random()
+    {
+        return Vec3(RandomDouble(), RandomDouble(), RandomDouble());
+    }
+
+    static Vec3 Random(double minimum, double maximum)
+    {
+        return Vec3(
+            RandomDouble(minimum, maximum),
+            RandomDouble(minimum, maximum),
+            RandomDouble(minimum, maximum)
+        );
+    }
+
+public:
+
     double E[3];
 };
-typedef Vector3 Vec3;
 
-// Point3은 Vec3의 별칭입니다. 코드의 기하학적 명확성을 위해 유용합니다.
-using Point3 = Vector3;
 
 
 // 벡터 유틸리티 함수들
-
 inline std::ostream& operator<<(std::ostream& out, const Vector3& v)
 {
     return out << v.E[0] << ' ' << v.E[1] << ' ' << v.E[2];
