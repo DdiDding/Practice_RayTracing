@@ -1,9 +1,9 @@
 #pragma once
 #include <iostream>
 #include "interval.h"
-#include "Vec3.h"
+#include "vec3.h"
 
-using Color = Vec3;
+using Color = Vector3;
 
 // vec3클래스를 사용하여 단일 색상을 기록하는 함수
 void WriteColor(std::ostream& out, const Color& pixelColor)
