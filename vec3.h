@@ -63,32 +63,6 @@ public:
         );
     }
 
-    inline Vec3 RandomUnitVector()
-    {
-        while (true)
-        {
-            auto p = Vec3::Random(-1.0, 1.0);
-            auto lengthSquared = p.LengthSquared();
-    
-            if (1e-160 < lengthSquared && lengthSquared <= 1.0)
-            {
-                return p / std::sqrt(lengthSquared);
-            }
-        }
-    }
-
-    inline Vector3 RandomOnHemisphere(const Vector3& normal)
-    {
-        Vector3 unitSphereDirection = RandomUnitVector();
-    
-        // In the same hemisphere as the normal
-        if (Dot(unitSphereDirection, normal) > 0.0) 
-        {
-            return unitSphereDirection;
-        }
-    
-        return -unitSphereDirection;
-    }
 public:
     double E[3];
 };
@@ -149,4 +123,31 @@ inline Vector3 Cross(const Vector3& u, const Vector3& v)
 inline Vector3 UnitVector(const Vector3& v)
 {
     return v / v.Length();
+}
+
+inline Vec3 RandomUnitVector()
+{
+    while (true)
+    {
+        auto p = Vec3::Random(-1.0, 1.0);
+        auto lengthSquared = p.LengthSquared();
+
+        if (1e-160 < lengthSquared && lengthSquared <= 1.0)
+        {
+            return p / std::sqrt(lengthSquared);
+        }
+    }
+}
+
+inline Vector3 RandomOnHemisphere(const Vector3& normal)
+{
+    Vector3 unitSphereDirection = RandomUnitVector();
+
+    // In the same hemisphere as the normal
+    if (Dot(unitSphereDirection, normal) > 0.0)
+    {
+        return unitSphereDirection;
+    }
+
+    return -unitSphereDirection;
 }
