@@ -25,15 +25,14 @@ public:
 
             for (int pixelIndex = 0; pixelIndex < imageWidth; pixelIndex++)
             {
-                auto pixelCenter =
-                    mPixel00Location
-                    + (pixelIndex * mPixelDeltaU)
-                    + (scanlineIndex * mPixelDeltaV);
+                Color pixelColor(0.0, 0.0, 0.0);
 
-                auto rayDirection = pixelCenter - mCenter;
-                Ray ray(mCenter, rayDirection);
+                for (int sampleIndex = 0; sampleIndex < samplesPerPixel; ++sampleIndex)
+                {
+                    Ray ray = GetRay(pixelIndex, scanlineIndex);
+                    pixelColor += RayColor(ray, world);
+                }
 
-                Color pixelColor = RayColor(ray, world);
                 WriteColor(std::cout, pixelColor);
             }
         }
@@ -81,7 +80,6 @@ private:
     {
         // 원점에서 출발하여 무작위로 샘플링된 카메라 광선을 구성한다
         // 픽셀 위치 pixelIndex, scanlineIndex를 가리킨다
-
         auto offset = SampleSquare();
 
         auto pixelSample =
