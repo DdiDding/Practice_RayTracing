@@ -6,6 +6,8 @@ class Camera
 public:
     double aspectRatio = 1.0;   // Ratio of image width over height
     int imageWidth = 100;       // Rendered image width in pixel count
+    int samplesPerPixel = 10;
+
 
     void Render(const Hittable& world)
     {
@@ -45,6 +47,8 @@ private:
         mImageHeight = static_cast<int>(imageWidth / aspectRatio);
         mImageHeight = (mImageHeight < 1) ? 1 : mImageHeight;
 
+        mPixelSamplesScale = 1.0 / static_cast<double>(samplesPerPixel);
+
         mCenter = Point3(0.0, 0.0, 0.0);
 
         // Determine viewport dimensions
@@ -70,6 +74,36 @@ private:
         mPixel00Location = viewportUpperLeft + 0.5 * (mPixelDeltaU + mPixelDeltaV);
     }
 
+    /**
+     * 각 픽셀에 대해 다른 샘플을 생성한다.
+     */
+    Ray GetRay(int pixelIndex, int scanlineIndex) const
+    {
+        // 원점에서 출발하여 무작위로 샘플링된 카메라 광선을 구성한다
+        // 픽셀 위치 pixelIndex, scanlineIndex를 가리킨다
+
+        auto offset = SampleSquare();
+
+        auto pixelSample =
+            mPixel00Location
+            + ((pixelIndex + offset.X()) * mPixelDeltaU)
+            + ((scanlineIndex + offset.Y()) * mPixelDeltaV);
+
+        auto rayOrigin = mCenter;
+        auto rayDirection = pixelSample - rayOrigin;
+
+        return Ray(rayOrigin, rayDirection);
+    }
+
+    /** 
+     * 원점을 중심으로 한 단위 정사각형 내에서 무작위 샘플 포인트를 생성하는 새로운 헬퍼 함수 
+     */
+    Vec3 SampleSquare() const
+    {
+        // 벡터를 [-.5, -.5] - [+.5, +.5] 단위 제곱의 임의의 점으로 반환한다
+        return Vec3(RandomDouble() - 0.5, RandomDouble() - 0.5, 0.0);
+    }
+
     Color RayColor(const Ray& ray, const Hittable& world) const
     {
         HitRecord hitRecord;
@@ -87,6 +121,8 @@ private:
     }
 
 private:
+    double mPixelSamplesScale = 1.0;
+
     int mImageHeight = 0;        // Rendered image height
     Point3 mCenter;               // Camera center
     Point3 mPixel00Location;      // Location of pixel 0, 0
