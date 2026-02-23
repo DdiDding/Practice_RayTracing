@@ -14,10 +14,14 @@ void WriteColor(std::ostream& out, const Color& pixelColor)
 
     static const Interval intensity(0.000, 0.999);
 
+    double cRed = intensity.Clamp(red);
+    double cGreen = intensity.Clamp(green);
+    double cBlue = intensity.Clamp(blue);
+
     // [0,1] 범위의 컴포넌트 값을 바이트 범위 [0,255]로 변환합니다.
-    int redByte = static_cast<int>(256.0 * intensity.Clamp(red));
-    int greenByte = static_cast<int>(256.0 * intensity.Clamp(green));
-    int blueByte = static_cast<int>(256.0 * intensity.Clamp(blue));
+    int redByte = static_cast<int>(256.0 * intensity.Clamp(cRed));
+    int greenByte = static_cast<int>(256.0 * intensity.Clamp(cGreen));
+    int blueByte = static_cast<int>(256.0 * intensity.Clamp(cBlue));
 
     // 픽셀 색상 컴포넌트를 출력합니다.
     out << redByte << ' ' << greenByte << ' ' << blueByte << '\n';
