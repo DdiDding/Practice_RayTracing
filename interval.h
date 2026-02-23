@@ -1,6 +1,5 @@
 #pragma once
-
-#include "RTWeekend.h"
+#include "rtweekend.h"
 
 struct Interval
 {

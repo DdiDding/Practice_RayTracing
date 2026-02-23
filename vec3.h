@@ -1,10 +1,12 @@
 #pragma once
-
 #include <cmath>
 #include <iostream>
+#include "mathUtil.h"
 
-struct Vector3
+class Vector3
 {
+public:
+
     Vector3() : E{ 0,0,0 } {}
     Vector3(double e0, double e1, double e2) : E{ e0, e1, e2 } {}
 
@@ -47,16 +49,28 @@ struct Vector3
         return E[0] * E[0] + E[1] * E[1] + E[2] * E[2];
     }
 
+    static Vector3 Random()
+    {
+        return Vector3(RandomDouble(), RandomDouble(), RandomDouble());
+    }
+
+    static Vector3 Random(double minimum, double maximum)
+    {
+        return Vector3(
+            RandomDouble(minimum, maximum),
+            RandomDouble(minimum, maximum),
+            RandomDouble(minimum, maximum)
+        );
+    }
+
+public:
     double E[3];
 };
-typedef Vector3 Vec3;
-
-// Point3은 Vec3의 별칭입니다. 코드의 기하학적 명확성을 위해 유용합니다.
 using Point3 = Vector3;
+using Vec3 = Vector3;
 
 
-// 벡터 유틸리티 함수들
-
+// 벡터 클래스의 유틸리티 함수
 inline std::ostream& operator<<(std::ostream& out, const Vector3& v)
 {
     return out << v.E[0] << ' ' << v.E[1] << ' ' << v.E[2];
@@ -109,4 +123,31 @@ inline Vector3 Cross(const Vector3& u, const Vector3& v)
 inline Vector3 UnitVector(const Vector3& v)
 {
     return v / v.Length();
+}
+
+inline Vec3 RandomUnitVector()
+{
+    while (true)
+    {
+        auto p = Vec3::Random(-1.0, 1.0);
+        auto lengthSquared = p.LengthSquared();
+
+        if (1e-160 < lengthSquared && lengthSquared <= 1.0)
+        {
+            return p / std::sqrt(lengthSquared);
+        }
+    }
+}
+
+inline Vector3 RandomOnHemisphere(const Vector3& normal)
+{
+    Vector3 unitSphereDirection = RandomUnitVector();
+
+    // In the same hemisphere as the normal
+    if (Dot(unitSphereDirection, normal) > 0.0)
+    {
+        return unitSphereDirection;
+    }
+
+    return -unitSphereDirection;
 }

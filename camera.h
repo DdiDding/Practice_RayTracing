@@ -7,6 +7,7 @@ public:
     double aspectRatio = 1.0;   // Ratio of image width over height
     int imageWidth = 100;       // Rendered image width in pixel count
     int samplesPerPixel = 10;
+    int maxDepth = 10; // RayColor의 최대 재귀 깊이
 
 
     void Render(const Hittable& world)
@@ -30,7 +31,7 @@ public:
                 for (int sampleIndex = 0; sampleIndex < samplesPerPixel; ++sampleIndex)
                 {
                     Ray ray = GetRay(pixelIndex, scanlineIndex);
-                    pixelColor += RayColor(ray, world);
+                    pixelColor += RayColor(ray, maxDepth, world);
                 }
 
                 // 평균내는 코드
@@ -43,6 +44,7 @@ public:
     }
 
 private:
+
     void Initialize()
     {
         mImageHeight = static_cast<int>(imageWidth / aspectRatio);
@@ -96,7 +98,7 @@ private:
     }
 
     /** 
-     * 원점을 중심으로 한 단위 정사각형 내에서 무작위 샘플 포인트를 생성하는 새로운 헬퍼 함수 
+     * 원점을 중심으로 한 단위 정사각형 내에서 무작위 샘플 포인트를 생성하는 새로운 헬퍼 함수
      */
     Vec3 SampleSquare() const
     {
@@ -104,13 +106,18 @@ private:
         return Vec3(RandomDouble() - 0.5, RandomDouble() - 0.5, 0.0);
     }
 
-    Color RayColor(const Ray& ray, const Hittable& world) const
+
+    Color RayColor(const Ray& ray, int depth, const Hittable& world) const
     {
+        // 깊이 한계를 초과하면 빛이 모이지 않는다는 가정하에 검은색으로 설정한다.
+        if (depth <= 0) return Color(0.0, 0.0, 0.0);
+
         HitRecord hitRecord;
 
-        if (world.Hit(ray, Interval(0.0, Infinity), hitRecord))
+        if (world.Hit(ray, Interval(0.001, Infinity), hitRecord))
         {
-            return 0.5 * (hitRecord.Normal + Color(1.0, 1.0, 1.0));
+            Vec3 direction = hitRecord.Normal + RandomUnitVector();
+            return 0.5 * RayColor(Ray(hitRecord.Point, direction), depth - 1, world);
         }
 
         Vec3 unitDirection = UnitVector(ray.Direction());

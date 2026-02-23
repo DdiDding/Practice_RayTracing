@@ -35,27 +35,6 @@ double HitSphere(const Point3& center, double radius, const Ray& r)
     return (b - std::sqrt(discriminant)) / a;
 }
 
-/**
- * 광선의 색을 계산하는 함수
- * 충돌시 충돌한 점의 법선 벡터를 색으로 표현 함
- * 충돌하지 않았다면 광선 방향의 Y에 따라 파란색 -> 하얀색의 그라데이션 색 표현
- */
-Color RayColor(const Ray& ray, const Hittable& world)
-{
-    HitRecord hitRecord;
-
-    if (world.Hit(ray, Interval(0.0, Infinity), hitRecord))
-    {
-        return 0.5 * (hitRecord.Normal + Color(1.0, 1.0, 1.0));
-    }
-
-    Vector3 unitDirection = UnitVector(ray.Direction());
-    auto a = 0.5 * (unitDirection.Y() + 1.0);
-
-
-	return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color	(0.5, 0.7, 1.0);
-}
-
 int main()
 {
     /*************************************************/
@@ -71,6 +50,7 @@ int main()
     camera.aspectRatio = 16.0 / 9.0;
     camera.imageWidth = 400;
     camera.samplesPerPixel = 100;
+    camera.maxDepth = 50;
 
     camera.Render(world);
 
