@@ -1,5 +1,6 @@
 #pragma once
-#include "Hittable.h"
+#include "hittable.h"
+#include "material.h"
 
 class Camera
 {
@@ -110,14 +111,21 @@ private:
     Color RayColor(const Ray& ray, int depth, const Hittable& world) const
     {
         // 깊이 한계를 초과하면 빛이 모이지 않는다는 가정하에 검은색으로 설정한다.
-        if (depth <= 0) return Color(0.0, 0.0, 0.0);
+        if (depth <= 0) return Color(0.0, 1.0, 0.0);
 
         HitRecord hitRecord;
 
         if (world.Hit(ray, Interval(0.001, Infinity), hitRecord))
         {
-            Vec3 direction = hitRecord.Normal + RandomUnitVector();
-            return 0.5 * RayColor(Ray(hitRecord.Point, direction), depth - 1, world);
+            Ray scattered;
+            Color attenuation;
+
+            if (hitRecord.material->Scatter(ray, hitRecord, attenuation, scattered))
+            {
+                return attenuation * RayColor(scattered, depth - 1, world);
+            }
+
+            return Color(1.0, 0.0, 0.0);
         }
 
         Vec3 unitDirection = UnitVector(ray.Direction());

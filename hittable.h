@@ -4,6 +4,8 @@
 #include "rtweekend.h"
 #include "Ray.h"
 
+class Material;
+
 class HitRecord 
 {
 public:
@@ -16,8 +18,9 @@ public:
 
     Point3 Point;
     Vec3 Normal;
-    double T;
-    bool bFrontFace;
+    double T = 0.0;
+    bool bFrontFace = false;
+    std::shared_ptr<Material> material;
 };
 
 class Hittable 
