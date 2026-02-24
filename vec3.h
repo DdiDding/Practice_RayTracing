@@ -49,6 +49,15 @@ public:
         return E[0] * E[0] + E[1] * E[1] + E[2] * E[2];
     }
 
+    bool NearZero() const
+    {
+        auto threshold = 1e-8;
+
+        return (std::fabs(E[0]) < threshold)
+            && (std::fabs(E[1]) < threshold)
+            && (std::fabs(E[2]) < threshold);
+    }
+
     static Vector3 Random()
     {
         return Vector3(RandomDouble(), RandomDouble(), RandomDouble());
@@ -62,6 +71,7 @@ public:
             RandomDouble(minimum, maximum)
         );
     }
+
 
 public:
     double E[3];
