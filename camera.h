@@ -111,7 +111,7 @@ private:
     Color RayColor(const Ray& ray, int depth, const Hittable& world) const
     {
         // 깊이 한계를 초과하면 빛이 모이지 않는다는 가정하에 검은색으로 설정한다.
-        if (depth <= 0) return Color(0.0, 0.0, 0.0);
+        if (depth <= 0) return Color(0.0, 1.0, 0.0);
 
         HitRecord hitRecord;
 
