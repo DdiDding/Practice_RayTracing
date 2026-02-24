@@ -1,6 +1,4 @@
-#ifndef HITTABLE_H
-#define HITTABLE_H
-
+#pragma once
 #include "rtweekend.h"
 #include "Ray.h"
 
@@ -35,4 +33,3 @@ public:
     ) const = 0;
 };
 
-#endif
