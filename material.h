@@ -17,10 +17,10 @@ public:
 };
 
 
-class Labertian : public Material
+class Lambertian : public Material
 {
 public:
-    explicit Labertian(const Color& albedo) {}
+    explicit Lambertian(const Color& albedo) {}
     
     bool Scatter(const Ray& rayIn, const HitRecord& hitRecord, Color& attenuation, Ray& scattered) const override
     {
@@ -37,6 +37,29 @@ public:
 
         return true;
     }
+private:
+    Color mAlbedo;
+};
+
+
+class Metal : public Material
+{
+public:
+    explicit Metal(const Color& albedo)
+        : mAlbedo(albedo)
+    {
+    }
+
+    bool Scatter(const Ray& rayIn, const HitRecord& hitRecord, Color& attenuation, Ray& scattered) const override
+    {
+        Vec3 reflected = Reflect(rayIn.Direction(), hitRecord.Normal);
+
+        scattered = Ray(hitRecord.Point, reflected);
+        attenuation = mAlbedo;
+
+        return true;
+    }
+
 private:
     Color mAlbedo;
 };

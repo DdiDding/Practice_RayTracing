@@ -161,3 +161,8 @@ inline Vector3 RandomOnHemisphere(const Vector3& normal)
 
     return -unitSphereDirection;
 }
+
+inline Vec3 Reflect(const Vec3& v, const Vec3& n)
+{
+    return v - 2.0 * Dot(v, n) * n;
+}
