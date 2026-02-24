@@ -98,7 +98,7 @@ public:
 
         Vec3 direction;
 
-        if (cannotRefract)
+       if (cannotRefract || Reflectance(cosTheta, refractionRatio) > RandomDouble())
         {
             direction = Reflect(unitDirection, hitRecord.Normal);
         }
@@ -112,6 +112,17 @@ public:
     }
 
 private:
-    // Refraction index (IOR). For air/vacuum -> material, typical  glass is ~1.5.
+
+    static double Reflectance(double cosine, double refractionIndex)
+    {
+        // Schlick의 반사율 근사 사용
+        auto r0 = (1.0 - refractionIndex) / (1.0 + refractionIndex);
+        r0 = r0 * r0;
+        return r0 + (1.0 - r0) * std::pow((1.0 - cosine), 5);
+    }
+
+private:
+    // 진공 또는 공기 중 굴절률, 또는 재질의 굴절률을
+    // 둘러싼 매질의 굴절률로 나눈 비율
     double mRefractionIndex = 1.0;
 };
