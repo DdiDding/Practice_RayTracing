@@ -9,11 +9,12 @@
 
 int main()
 {
-
+    /*************************************************/
+    // Material 설정
     auto materialGround = std::make_shared<Lambertian>(Color(0.8, 0.8, 0.0));
-    auto materialCenter = std::make_shared<Lambertian>(Color(0.1, 0.2, 0.5));
-    auto materialLeft = std::make_shared<Metal>(Color(0.8, 0.8, 0.8));
-    auto materialRight = std::make_shared<Metal>(Color(0.8, 0.6, 0.2));
+	auto materialCenter = std::make_shared<Lambertian>(Color(0.1, 0.2, 0.5));
+	auto materialLeft = std::make_shared<Metal>(Color(0.8, 0.8, 0.8), 0.3);
+	auto materialRight = std::make_shared<Metal>(Color(0.8, 0.6, 0.2), 1.0);
 
     /*************************************************/
     // world 설정
