@@ -74,9 +74,9 @@ private:
         u = UnitVector(Cross(vUp, w));
         v = Cross(w, u);
 
-        // Calculate the vectors across the horizontal and down the vertical viewport edges
-        auto viewportU = Vec3(viewportWidth, 0.0, 0.0);
-        auto viewportV = Vec3(0.0, -viewportHeight, 0.0);
+        // ºäÆ÷Æ®ÀÇ º¤ÅÍ °è»ê
+        auto viewportU = viewportWidth * u;
+        auto viewportV = viewportHeight * -v;
 
         // Calculate the horizontal and vertical delta vectors from pixel to pixel
         mPixelDeltaU = viewportU / imageWidth;
