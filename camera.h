@@ -5,13 +5,6 @@
 class Camera
 {
 public:
-    double aspectRatio = 1.0;   // Ratio of image width over height
-    int imageWidth = 100;       // Rendered image width in pixel count
-    int samplesPerPixel = 10;
-    int maxDepth = 10; // RayColor의 최대 재귀 깊이
-
-    double vFov = 90; // 수직 시야각
-
     void Render(const Hittable& world)
     {
         Initialize();
@@ -45,8 +38,21 @@ public:
         std::clog << "\rDone.                 \n";
     }
 
-private:
 
+public:
+    double aspectRatio = 1.0;   // Ratio of image width over height
+    int imageWidth = 100;       // Rendered image width in pixel count
+    int samplesPerPixel = 10;
+    int maxDepth = 10; // RayColor의 최대 재귀 깊이
+
+    double vFov = 90; // 수직 시야각
+
+    Point3 lookFrom = Point3(0.0, 0.0, 0.0);
+    Point3 lookAt = Point3(0.0, 0.0, -1.0);
+    Vec3 vUp = Vec3(0.0, 1.0, 0.0);
+
+
+private:
     void Initialize()
     {
         mImageHeight = static_cast<int>(imageWidth / aspectRatio);
@@ -63,6 +69,11 @@ private:
         auto viewportHeight = 2.0 * h * focalLength;
         auto viewportWidth = viewportHeight * (static_cast<double>(imageWidth) / mImageHeight);
 
+        // 카메라 좌표 프레임에 대한 u,v,w 단위 기저 벡터 계산
+        w = UnitVector(lookFrom - lookAt);
+        u = UnitVector(Cross(vUp, w));
+        v = Cross(w, u);
+
         // Calculate the vectors across the horizontal and down the vertical viewport edges
         auto viewportU = Vec3(viewportWidth, 0.0, 0.0);
         auto viewportV = Vec3(0.0, -viewportHeight, 0.0);
@@ -74,7 +85,7 @@ private:
         // 왼쪽 상단의 픽셀 위치 계산
         auto viewportUpperLeft =
             mCenter
-            - Vec3(0.0, 0.0, focalLength)
+            - focalLength * w
             - viewportU / 2.0
             - viewportV / 2.0;
 
@@ -146,4 +157,6 @@ private:
     Point3 mPixel00Location;      // Location of pixel 0, 0
     Vec3 mPixelDeltaU;           // Offset to pixel to the right
     Vec3 mPixelDeltaV;           // Offset to pixel below
+
+    Vec3 u, v, w;
 };
