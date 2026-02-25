@@ -60,7 +60,7 @@ private:
 
         mPixelSamplesScale = 1.0 / static_cast<double>(samplesPerPixel);
 
-        mCenter = Point3(0.0, 0.0, 0.0);
+        mCenter = lookFrom;
 
         // 뷰포트 크기 결정
         auto focalLength = 1.0;

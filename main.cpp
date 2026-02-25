@@ -38,7 +38,7 @@ int main()
     camera.samplesPerPixel = 100;
     camera.maxDepth = 50;
 
-    camera.vFov = 90;
+    camera.vFov = 20;
     camera.lookFrom = Point3(-2.0, 2.0, 1.0);
     camera.lookAt = Point3(0.0, 0.0, -1.0);
     camera.vUp = Vec3(0.0, 1.0, 0.0);
