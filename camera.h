@@ -10,6 +10,7 @@ public:
     int samplesPerPixel = 10;
     int maxDepth = 10; // RayColor의 최대 재귀 깊이
 
+    double vFov = 90; // 수직 시야각
 
     void Render(const Hittable& world)
     {
@@ -55,9 +56,11 @@ private:
 
         mCenter = Point3(0.0, 0.0, 0.0);
 
-        // Determine viewport dimensions
+        // 뷰포트 크기 결정
         auto focalLength = 1.0;
-        auto viewportHeight = 2.0;
+        auto theta = DegreesToRadians(vFov);
+        auto h = std::tan(theta / 2);
+        auto viewportHeight = 2.0 * h * focalLength;
         auto viewportWidth = viewportHeight * (static_cast<double>(imageWidth) / mImageHeight);
 
         // Calculate the vectors across the horizontal and down the vertical viewport edges
@@ -68,7 +71,7 @@ private:
         mPixelDeltaU = viewportU / imageWidth;
         mPixelDeltaV = viewportV / mImageHeight;
 
-        // Calculate the location of the upper left pixel
+        // 왼쪽 상단의 픽셀 위치 계산
         auto viewportUpperLeft =
             mCenter
             - Vec3(0.0, 0.0, focalLength)

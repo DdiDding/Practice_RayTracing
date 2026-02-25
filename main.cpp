@@ -13,23 +13,20 @@ int main()
 {
     /*************************************************/
     // Material 설정
-    auto materialGround = make_shared<Lambertian>(Color(0.8, 0.8, 0.0));
-    auto materialCenter = make_shared<Lambertian>(Color(0.1, 0.2, 0.5));
-    auto materialLeft = make_shared<Dielectric>(1.50);
-    auto materialBubble = make_shared<Dielectric>(1.0 / 1.50);
-    auto materialRight = make_shared<Metal>(Color(0.8, 0.6, 0.2), 0.0);
+
 
     /*************************************************/
     // world 설정
     HittableList world;
 
-    world.Add(make_shared<Sphere>(Point3(0.0, -100.5, -1.0), 100.0, materialGround));
-    world.Add(make_shared<Sphere>(Point3(0.0, 0.0, -1.2), 0.5, materialCenter));
+    auto R = std::cos(Pi / 4);
 
-    world.Add(make_shared<Sphere>(Point3(-1.0, 0.0, -1.0), 0.5, materialLeft));
-    world.Add(make_shared<Sphere>(Point3(-1.0, 0.0, -1.0), 0.4, materialBubble));
+    auto materialLeft = make_shared<Lambertian>(Color(0, 0, 1));
+    auto materialRight = make_shared<Lambertian>(Color(1, 0, 0));
 
-    world.Add(make_shared<Sphere>(Point3(1.0, 0.0, -1.0), 0.5, materialRight));
+    world.Add(make_shared<Sphere>(Point3(-R, 0, -1), R, materialLeft));
+    world.Add(make_shared<Sphere>(Point3(R, 0, -1), R, materialRight));
+
     /*************************************************/
     // camera 설정
     Camera camera;
@@ -38,6 +35,8 @@ int main()
     camera.imageWidth = 400;
     camera.samplesPerPixel = 100;
     camera.maxDepth = 50;
+
+    camera.vFov = 90;
 
     camera.Render(world);
 
