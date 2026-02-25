@@ -29,9 +29,7 @@ public:
                     pixelColor += RayColor(ray, maxDepth, world);
                 }
 
-                // 평균내는 코드
-                pixelColor *= mPixelSamplesScale;
-                WriteColor(std::cout, pixelColor);
+                WriteColor(std::cout, mPixelSamplesScale * pixelColor);
             }
         }
 
@@ -46,10 +44,12 @@ public:
     int maxDepth = 10; // RayColor의 최대 재귀 깊이
 
     double vFov = 90; // 수직 시야각
-
     Point3 lookFrom = Point3(0.0, 0.0, 0.0);
     Point3 lookAt = Point3(0.0, 0.0, -1.0);
     Vec3 vUp = Vec3(0.0, 1.0, 0.0);
+
+    double defocusAngle = 0; // 각 픽셀을 통과하는 광선의 편차 각도
+    double focusDist = 10; // 카메라 시점(lookfrom point)에서 완벽한 초점 평면까지의 거리
 
 
 private:
@@ -57,13 +57,12 @@ private:
     {
         mImageHeight = static_cast<int>(imageWidth / aspectRatio);
         mImageHeight = (mImageHeight < 1) ? 1 : mImageHeight;
-
         mPixelSamplesScale = 1.0 / static_cast<double>(samplesPerPixel);
 
         mCenter = lookFrom;
 
         // 뷰포트 크기 결정
-        auto focalLength = 1.0;
+        auto focalLength = (lookFrom - lookAt).Length();
         auto theta = DegreesToRadians(vFov);
         auto h = std::tan(theta / 2);
         auto viewportHeight = 2.0 * h * focalLength;
@@ -90,6 +89,11 @@ private:
             - viewportV / 2.0;
 
         mPixel00Location = viewportUpperLeft + 0.5 * (mPixelDeltaU + mPixelDeltaV);
+
+        const double defocusRadius = focusDist * std::tan(DegreesToRadians(defocusAngle * 0.5));
+
+        mDefocusDiskU = u * defocusRadius;
+        mDefocusDiskV = v * defocusRadius;
     }
 
     /**
@@ -106,7 +110,7 @@ private:
             + ((pixelIndex + offset.X()) * mPixelDeltaU)
             + ((scanlineIndex + offset.Y()) * mPixelDeltaV);
 
-        auto rayOrigin = mCenter;
+        auto rayOrigin = (defocusAngle <= 0.0) ? mCenter : DefocusDiskSample();
         auto rayDirection = pixelSample - rayOrigin;
 
         return Ray(rayOrigin, rayDirection);
@@ -121,11 +125,19 @@ private:
         return Vec3(RandomDouble() - 0.5, RandomDouble() - 0.5, 0.0);
     }
 
+    Point3 DefocusDiskSample() const
+    {
+        const Vec3 point = RandomInUnitDisk();
+        return mCenter + (point.X() * mDefocusDiskU) + (point.Y() * mDefocusDiskV);
+    }
 
     Color RayColor(const Ray& ray, int depth, const Hittable& world) const
     {
         // 깊이 한계를 초과하면 빛이 모이지 않는다는 가정하에 검은색으로 설정한다.
-        if (depth <= 0) return Color(0.0, 0.0, 0.0);
+        if (depth <= 0)
+        {
+            return Color(0.0, 0.0, 0.0);
+        }
 
         HitRecord hitRecord;
 
@@ -150,7 +162,6 @@ private:
     }
 
 private:
-    double mPixelSamplesScale = 1.0;
 
     int mImageHeight = 0;        // Rendered image height
     Point3 mCenter;               // Camera center
@@ -159,4 +170,9 @@ private:
     Vec3 mPixelDeltaV;           // Offset to pixel below
 
     Vec3 u, v, w;
+
+    double mPixelSamplesScale = 1.0; // Color scale factor for a sum of pixel samples
+
+    Vec3 mDefocusDiskU; // Defocus disk horizontal radius
+    Vec3 mDefocusDiskV; // Defocus disk vertical radius
 };
