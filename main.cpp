@@ -6,20 +6,20 @@
 // 판별식만 확인한다.
 bool HitSphere(const Point3& center, double radius, const Ray& r)
 {
-    // 광선 시작 지점과 구의 중앙의 위치 차이 벡터
-    Vec3 oc = center - r.Origin();
+    // m = A - C
+    Vec3 m = r.Origin() - center;
 
-    // 광선의 방향벡터 제곱
+    // 광선의 방향벡터 제곱 | a = dir * dir
     auto a = Dot(r.Direction(), r.Direction());
 
-    // 광선의 방향이 구를 향해 얼마나 향하는지에 대한 각도의 정규화 값
-    auto b = -2.0 * Dot(r.Direction(), oc);
+    // b = 2(m * d)
+    auto b = 2.0 * Dot(r.Direction(), m);
 
-
-    auto c = Dot(oc, oc) - radius * radius;
+    // c = (m * m) - r^2
+    auto c = Dot(m, m) - (radius * radius);
 
     // 2차 방정식 판별식
-    auto discriminant = b * b - 4 * a * c;
+    auto discriminant = (b * b) - (4 * a * c);
     return (discriminant >= 0);
 }
 
